@@ -1,0 +1,48 @@
+
+package com.mycompany.aesapp;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class AESApp {
+    public static void main(String[] args) throws Exception {
+        Scanner scanner = new Scanner(System.in);
+
+        // 1. Accept Plaintext Message
+        System.out.print("Enter message to encrypt: ");
+        String plainText = scanner.nextLine();
+
+        // 2. Generate a 128-bit AES Secret Key (Minimum requirement)
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(128); // Standard 128-bit AES key
+        SecretKey secretKey = keyGen.generateKey();
+
+        // 3. Encrypt the plaintext
+        String cipherText = encrypt(plainText, secretKey);
+        System.out.println("Encrypted Ciphertext (Base64): " + cipherText);
+
+        // 4. Decrypt and display the original message
+        String decryptedText = decrypt(cipherText, secretKey);
+        System.out.println("Decrypted Original Message: " + decryptedText);
+        
+        scanner.close();
+    }
+
+    public static String encrypt(String input, SecretKey key) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES"); // Get instance of AES cipher
+        cipher.init(Cipher.ENCRYPT_MODE, key); // Initialize for encryption
+        byte[] encryptedBytes = cipher.doFinal(input.getBytes()); // Perform encryption
+        return Base64.getEncoder().encodeToString(encryptedBytes); // Encode for readable display
+    }
+
+    public static String decrypt(String encryptedData, SecretKey key) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, key); // Initialize for decryption
+        byte[] decodedBytes = Base64.getDecoder().decode(encryptedData); // Decode Base64 input
+        byte[] decryptedBytes = cipher.doFinal(decodedBytes); // Perform decryption
+        return new String(decryptedBytes);
+    }
+}
